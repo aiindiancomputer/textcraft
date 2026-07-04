@@ -1,0 +1,146 @@
+"use client";
+
+import {
+  CaseSensitive,
+  Sparkles,
+  BarChart3,
+  Eraser,
+  Moon,
+  Sun,
+  Wand2,
+  X,
+} from "lucide-react";
+import AdPlaceholder from "./AdPlaceholder";
+import type { ToolId } from "@/lib/types";
+
+interface SidebarProps {
+  activeTool: ToolId;
+  onSelectTool: (tool: ToolId) => void;
+  isDark: boolean;
+  onToggleTheme: () => void;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const NAV_ITEMS: { id: ToolId; label: string; icon: typeof CaseSensitive }[] = [
+  { id: "case-converter", label: "Case Converter", icon: CaseSensitive },
+  { id: "fancy-text", label: "Fancy Text Generator", icon: Sparkles },
+  { id: "analytics", label: "Text Analytics", icon: BarChart3 },
+  { id: "cleaner", label: "Text Cleaner", icon: Eraser },
+];
+
+export default function Sidebar({
+  activeTool,
+  onSelectTool,
+  isDark,
+  onToggleTheme,
+  isOpen,
+  onClose,
+}: SidebarProps) {
+  return (
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 flex-col border-r px-5 py-6 transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{
+          backgroundColor: "var(--bg-raised)",
+          borderColor: "var(--border-color)",
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg"
+              style={{ background: "linear-gradient(135deg, #6366F1, #8B5CF6)" }}
+            >
+              <Wand2 size={18} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-[15px] font-semibold leading-tight">TextCraft</h1>
+              <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+                Modern Text Utility Hub
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="focus-ring rounded-md p-1.5 lg:hidden"
+            aria-label="Close menu"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <nav className="mt-8 flex flex-col gap-1" aria-label="Tool navigation">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active = activeTool === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onSelectTool(item.id);
+                  onClose();
+                }}
+                className={`focus-ring group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                  active ? "shadow-glow" : ""
+                }`}
+                style={{
+                  backgroundColor: active ? "var(--accent)" : "transparent",
+                  color: active ? "#ffffff" : "var(--text-secondary)",
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) e.currentTarget.style.backgroundColor = "var(--bg-sunken)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) e.currentTarget.style.backgroundColor = "transparent";
+                }}
+                aria-current={active ? "page" : undefined}
+              >
+                <Icon size={17} strokeWidth={2} />
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="mt-6">
+          <AdPlaceholder orientation="vertical" compact />
+        </div>
+
+        <div className="mt-auto flex flex-col gap-3 pt-6">
+          <button
+            onClick={onToggleTheme}
+            className="focus-ring flex items-center justify-between rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors"
+            style={{ borderColor: "var(--border-color)", color: "var(--text-secondary)" }}
+          >
+            <span className="flex items-center gap-2">
+              {isDark ? <Moon size={16} /> : <Sun size={16} />}
+              {isDark ? "Dark Mode" : "Light Mode"}
+            </span>
+            <span
+              className="relative h-5 w-9 rounded-full transition-colors"
+              style={{ backgroundColor: isDark ? "var(--accent)" : "var(--border-color)" }}
+            >
+              <span
+                className="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform"
+                style={{ transform: isDark ? "translateX(18px)" : "translateX(2px)" }}
+              />
+            </span>
+          </button>
+          <p className="text-center text-[11px]" style={{ color: "var(--text-muted)" }}>
+            © {new Date().getFullYear()} TextCraft. All processing happens in your browser.
+          </p>
+        </div>
+      </aside>
+    </>
+  );
+}
