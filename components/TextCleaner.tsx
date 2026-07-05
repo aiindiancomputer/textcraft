@@ -66,7 +66,7 @@ export default function TextCleaner({ onCopy }: { onCopy: (msg: string) => void 
             <button
               key={action.id}
               onClick={() => applyClean(action.fn)}
-              className="focus-ring flex flex-col items-center gap-2 rounded-lg border px-3 py-4 text-center text-xs font-medium transition-all hover:-translate-y-0.5 hover:shadow-glow"
+              className="focus-ring flex flex-col items-center gap-2 rounded-lg border px-3 py-4 text-center text-xs font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:shadow-glow active:translate-y-0 active:duration-75"
               style={{ borderColor: "var(--border-color)", backgroundColor: "var(--bg-raised)" }}
             >
               <Icon size={18} style={{ color: "var(--accent)" }} />
@@ -79,14 +79,14 @@ export default function TextCleaner({ onCopy }: { onCopy: (msg: string) => void 
       <div className="flex flex-wrap gap-3">
         <button
           onClick={handleCopy}
-          className="focus-ring flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 active:translate-y-0"
+          className="focus-ring flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-glow active:translate-y-0 active:duration-75"
           style={{ backgroundColor: "var(--accent)" }}
         >
           <Copy size={16} /> Copy to Clipboard
         </button>
         <button
           onClick={handleClear}
-          className="focus-ring flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 active:translate-y-0"
+          className="focus-ring flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:duration-75"
           style={{ borderColor: "var(--border-color)", color: "var(--text-secondary)" }}
         >
           <Trash2 size={16} /> Clear Text

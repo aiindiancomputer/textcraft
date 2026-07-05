@@ -74,7 +74,7 @@ export default function FancyTextGenerator({ onCopy }: { onCopy: (msg: string) =
             </div>
             <button
               onClick={() => handleCopy(result.output)}
-              className="focus-ring flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-all hover:-translate-y-0.5"
+              className="focus-ring flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:shadow-glow active:translate-y-0 active:duration-75"
               style={{ borderColor: "var(--border-color)", color: "var(--accent)" }}
             >
               <Copy size={13} /> Copy

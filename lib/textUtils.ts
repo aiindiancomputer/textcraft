@@ -283,6 +283,13 @@ function spacedOut(text: string): string {
   return Array.from(text.trim()).join(" ");
 }
 
+// "Aesthetic" text — the fullwidth look popular for IG/Twitter bios,
+// additionally letter-spaced for the classic v a p o r w a v e feel.
+function toAesthetic(text: string): string {
+  const widened = mapBlock(text, { upperBase: 0xff21, lowerBase: 0xff41, digitBase: 0xff10 });
+  return Array.from(widened.trim()).join(" ");
+}
+
 export interface FancyStyle {
   id: string;
   label: string;
@@ -290,6 +297,7 @@ export interface FancyStyle {
 }
 
 export const FANCY_STYLES: FancyStyle[] = [
+  // ---- Unicode font styles ----------------------------------------------
   {
     id: "bold",
     label: "Bold Style",
@@ -312,12 +320,12 @@ export const FANCY_STYLES: FancyStyle[] = [
   },
   {
     id: "cursive",
-    label: "Cursive Style",
+    label: "Script / Cursive (Bold)",
     render: (t) => mapBlock(t, { upperBase: 0x1d4d0, lowerBase: 0x1d4ea }),
   },
   {
-    id: "bold-outline",
-    label: "Bold Outline",
+    id: "double-struck",
+    label: "Double Struck Style",
     render: (t) =>
       mapBlock(t, {
         upperBase: 0x1d538,
@@ -350,28 +358,39 @@ export const FANCY_STYLES: FancyStyle[] = [
     render: (t) => mapBlock(t, { upperBase: 0x1d5d4, lowerBase: 0x1d5ee, digitBase: 0x1d7ec }),
   },
   {
+    id: "sans-italic",
+    label: "Sans Italic Style",
+    render: (t) => mapBlock(t, { upperBase: 0x1d608, lowerBase: 0x1d622 }),
+  },
+  {
     id: "monospace",
     label: "Monospace Style",
     render: (t) => mapBlock(t, { upperBase: 0x1d670, lowerBase: 0x1d68a, digitBase: 0x1d7f6 }),
   },
   {
     id: "fullwidth",
-    label: "Vaporwave (Fullwidth)",
+    label: "Wide / Fullwidth Style",
     render: (t) => mapBlock(t, { upperBase: 0xff21, lowerBase: 0xff41, digitBase: 0xff10 }),
   },
-  { id: "small-caps", label: "Small Caps Style", render: toSmallCaps },
-  { id: "circled", label: "Circled Style", render: toCircled },
-  { id: "squared", label: "Squared / Boxed Style", render: toSquared },
-  { id: "negative-circled", label: "Dark Circled Style", render: toNegativeCircled },
+  { id: "aesthetic", label: "Aesthetic Style", render: toAesthetic },
+  { id: "small-caps", label: "Tiny / Small Caps Style", render: toSmallCaps },
+  { id: "bubble", label: "Bubble Style", render: toCircled },
+  { id: "squared", label: "Squared Style", render: toSquared },
+  { id: "negative-circled", label: "Dark Bubble Style", render: toNegativeCircled },
   { id: "superscript", label: "Superscript Style", render: toSuperscript },
   { id: "upside-down", label: "Upside Down Style", render: toUpsideDown },
-  { id: "strikethrough", label: "Strikethrough Style", render: (t) => withCombiningMark(t, "\u0336") },
+  { id: "slash-through", label: "Slash-through Style", render: (t) => withCombiningMark(t, "\u0336") },
   { id: "underline", label: "Underline Style", render: (t) => withCombiningMark(t, "\u0332") },
   { id: "spaced", label: "Spaced Out Style", render: spacedOut },
+
+  // ---- Gaming nickname frames --------------------------------------------
   { id: "frame-sword", label: "Sword Frame", render: (t) => `⚔️ ${t} ⚔️` },
   { id: "frame-royal", label: "Royal Frame", render: (t) => `꧁༒ ${t} ༒꧂` },
   { id: "frame-lightning", label: "Lightning Frame", render: (t) => `⚡『${t}』⚡` },
   { id: "frame-katakana", label: "Katakana Frame", render: (t) => `メ${t}メ` },
-  { id: "frame-star", label: "Star Frame", render: (t) => `☆*:.｡. ${t} .｡.:*☆` },
   { id: "frame-blade", label: "Blade Frame", render: (t) => `▬▬ι═══════ﺤ ${t} ﺤ═══════ι▬▬` },
+  { id: "frame-cross", label: "Cross Frame", render: (t) => `†${t}†` },
+  { id: "frame-wings", label: "Wings Frame", render: (t) => `𓆩${t}𓆪` },
+  { id: "frame-stars", label: "Stars Frame", render: (t) => `⋆｡°✩ ${t} ✩°｡⋆` },
+  { id: "frame-brackets", label: "Brackets Frame", render: (t) => `【${t}】` },
 ];

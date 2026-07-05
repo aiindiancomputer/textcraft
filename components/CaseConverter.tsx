@@ -86,7 +86,7 @@ export default function CaseConverter({ onCopy }: { onCopy: (msg: string) => voi
           <button
             key={action.id}
             onClick={() => applyTransform(action.fn)}
-            className="focus-ring rounded-lg border px-4 py-3 text-sm font-medium transition-all hover:-translate-y-0.5 hover:shadow-glow active:translate-y-0"
+            className="focus-ring rounded-lg border px-4 py-3 text-sm font-medium transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:shadow-glow active:translate-y-0 active:duration-75"
             style={{ borderColor: "var(--border-color)", backgroundColor: "var(--bg-raised)" }}
           >
             {action.label}
@@ -97,14 +97,14 @@ export default function CaseConverter({ onCopy }: { onCopy: (msg: string) => voi
       <div className="flex flex-wrap gap-3">
         <button
           onClick={handleCopy}
-          className="focus-ring flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 active:translate-y-0"
+          className="focus-ring flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-glow active:translate-y-0 active:duration-75"
           style={{ backgroundColor: "var(--accent)" }}
         >
           <Copy size={16} /> Copy to Clipboard
         </button>
         <button
           onClick={handleClear}
-          className="focus-ring flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 active:translate-y-0"
+          className="focus-ring flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:duration-75"
           style={{ borderColor: "var(--border-color)", color: "var(--text-secondary)" }}
         >
           <Trash2 size={16} /> Clear Text

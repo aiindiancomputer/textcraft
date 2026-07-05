@@ -39,7 +39,18 @@ body {
 }
 
 body {
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Every element that reads a theme CSS variable gets the same 300ms
+   fade, so toggling dark/light never looks like isolated pieces of the
+   page re-rendering out of sync with each other. */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
 }
 
 ::selection {

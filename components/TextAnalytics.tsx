@@ -57,7 +57,7 @@ export default function TextAnalytics({ onCopy }: { onCopy: (msg: string) => voi
           return (
             <div
               key={metric.label}
-              className="flex flex-col gap-3 rounded-xl border p-4 transition-transform hover:-translate-y-0.5"
+              className="flex flex-col gap-3 rounded-xl border p-4 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-glow"
               style={{ borderColor: "var(--border-color)", backgroundColor: "var(--bg-raised)" }}
             >
               <div
