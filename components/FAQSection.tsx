@@ -10,7 +10,7 @@ const FAQS = [
   },
   {
     q: "How do the fancy fonts for Instagram bio work?",
-    a: "The fancy text generator maps your regular letters onto special Unicode character sets — bold, italic, script, gothic, double-struck, small caps, circled, and more — so the styled text looks different everywhere it's pasted, including Instagram, Twitter/X, Discord, and Facebook bios, since it's still plain Unicode text under the hood.",
+    a: "The fancy text generator maps your regular letters onto special Unicode character sets — bold, italic, script, gothic, double-struck, small caps, circled, and more — so the styled text looks different everywhere it's pasted, including Instagram, Twitter/X, Discord, and Facebook bios, since it's still plain Unicode text under the hood. There are over 230 styles in total, searchable by name and grouped into font styles, gaming frames, and ready-made font-plus-frame combos.",
   },
   {
     q: "Is this a good free fire stylish nickname maker?",

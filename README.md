@@ -9,10 +9,13 @@ deploy permanently on Vercel's free Hobby plan.
 1. **Case Converter Studio** — UPPERCASE, lowercase, Title Case, Sentence
    case, InVeRsE cAsE, and slugify, with a live word/character/sentence
    counter.
-2. **Fancy Text & Gaming Nickname Generator** — 24 Unicode font styles and
-   decorative gaming-name frames (bold, italic, script, gothic, double-struck,
-   small caps, circled, squared, superscript, upside-down, and more), each
-   with its own copy button.
+2. **Fancy Text & Gaming Nickname Generator** — 237 total styles: 42 Unicode
+   font/novelty transforms (bold, italic, script, gothic, double-struck,
+   small caps, superscript, subscript, circled, squared, parenthesized,
+   upside-down, strike/underline/dotted/wavy overlays, separators, and
+   more), 111 decorative gaming-name frames (swords, crowns, stars, hearts,
+   skulls, brackets, and more), and 84 curated font + frame combos —
+   searchable by name, filterable by category, with per-row copy buttons.
 3. **Deep Text Analytics & Insights** — character/word/sentence/paragraph
    counts plus estimated reading time (200 wpm) and speaking time (130 wpm).
 4. **Pro Text Cleaner & Spacer** — remove extra spaces, remove empty lines,
