@@ -37,9 +37,9 @@ export default function TextCleaner({ onCopy }: { onCopy: (msg: string) => void 
   return (
     <section aria-labelledby="cleaner-heading" className="flex flex-col gap-6">
       <div>
-        <h1 id="cleaner-heading" className="text-2xl font-semibold tracking-tight">
+        <h2 id="cleaner-heading" className="text-2xl font-semibold tracking-tight">
           Pro Text Cleaner & Spacer
-        </h1>
+        </h2>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           A clean messy text tool — fix extra spaces, blank lines, stray HTML markup, and
           emojis in one click.

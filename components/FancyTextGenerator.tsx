@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Copy, Gamepad2, Search, ChevronDown } from "lucide-react";
+import { Copy, Gamepad2, Search, ChevronDown, PencilLine } from "lucide-react";
 import { FANCY_STYLES, type FancyStyle } from "@/lib/textUtils";
 
 type CategoryFilter = "all" | FancyStyle["category"];
@@ -16,7 +16,7 @@ const CATEGORY_TABS: { id: CategoryFilter; label: string }[] = [
 const PAGE_SIZE = 30;
 
 export default function FancyTextGenerator({ onCopy }: { onCopy: (msg: string) => void }) {
-  const [input, setInput] = useState("Player");
+  const [input, setInput] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [search, setSearch] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -58,9 +58,9 @@ export default function FancyTextGenerator({ onCopy }: { onCopy: (msg: string) =
   return (
     <section aria-labelledby="fancy-text-heading" className="flex flex-col gap-6">
       <div>
-        <h1 id="fancy-text-heading" className="text-2xl font-semibold tracking-tight">
+        <h2 id="fancy-text-heading" className="text-2xl font-semibold tracking-tight">
           Fancy Text & Gaming Nickname Generator
-        </h1>
+        </h2>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           {FANCY_STYLES.length}+ fancy fonts, symbols, and stylish nickname frames — a fancy
           font generator and Free Fire / BGMI / Valorant nickname maker perfect for Instagram
@@ -77,13 +77,22 @@ export default function FancyTextGenerator({ onCopy }: { onCopy: (msg: string) =
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a name or phrase..."
-          className="focus-ring w-full rounded-xl border py-3.5 pl-11 pr-4 text-[15px] transition-colors"
+          placeholder="Enter Your Name / Nickname..."
+          aria-label="Enter your name or nickname"
+          className="focus-ring w-full rounded-xl border py-3.5 pl-11 pr-11 text-[15px] transition-colors"
           style={{
             backgroundColor: "var(--bg-sunken)",
             borderColor: "var(--border-color)",
             color: "var(--text-primary)",
           }}
+        />
+        {/* Pencil icon signals the field is editable input, not static
+            display text — addresses the "looks like a label, not a box
+            to type in" UX issue. */}
+        <PencilLine
+          size={16}
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2"
+          style={{ color: "var(--text-muted)" }}
         />
       </div>
 

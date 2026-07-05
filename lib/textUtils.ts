@@ -1,5 +1,5 @@
 // ============================================================================
-// TextCraft — Core text utility engine
+// FancyCraft — Core text utility engine
 // Pure, dependency-free string functions used across every tool module.
 // ============================================================================
 

@@ -80,9 +80,16 @@ export default function Sidebar({
               <Wand2 size={18} className="text-white" />
             </div>
             <div>
-              <h1 className="text-[15px] font-semibold leading-tight">TextCraft</h1>
+              {/*
+                This is branding, not page content — it renders on every
+                screen regardless of which tool is active, so it must
+                never be an <h1>. The single real page heading lives in
+                app/page.tsx. Two <h1>s on one page is exactly the "multiple
+                H1 tags" issue an SEO audit flags.
+              */}
+              <p className="text-[15px] font-semibold leading-tight">FancyCraft</p>
               <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                Modern Text Utility Hub
+                Fancy Font & Nickname Generator
               </p>
             </div>
           </div>
@@ -153,7 +160,7 @@ export default function Sidebar({
             </span>
           </button>
           <p className="text-center text-[11px]" style={{ color: "var(--text-muted)" }}>
-            © {new Date().getFullYear()} TextCraft. All processing happens in your browser.
+            © {new Date().getFullYear()} FancyCraft. All processing happens in your browser.
           </p>
         </div>
       </aside>

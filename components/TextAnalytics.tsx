@@ -29,9 +29,9 @@ export default function TextAnalytics({ onCopy }: { onCopy: (msg: string) => voi
   return (
     <section aria-labelledby="analytics-heading" className="flex flex-col gap-6">
       <div>
-        <h1 id="analytics-heading" className="text-2xl font-semibold tracking-tight">
+        <h2 id="analytics-heading" className="text-2xl font-semibold tracking-tight">
           Deep Text Analytics & Insights
-        </h1>
+        </h2>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           A word counter online tool that also audits reading time, speaking time, and
           document structure.

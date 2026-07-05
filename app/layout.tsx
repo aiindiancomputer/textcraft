@@ -1,48 +1,57 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import "./globals.css";
+import StructuredData from "@/components/StructuredData";
+import { SITE_NAME, SITE_URL, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://fancycraft.vercel.app"),
-  
-  // Branding badal kar FancyCraft kar diya
-  title: "FancyCraft — Fancy Font Generator for Instagram Bio, Free Fire & BGMI",
-  description:
-    "Generate 1000+ stylish fonts, cool text symbols, and aesthetic names for Instagram bio, Free Fire, BGMI, and WhatsApp instantly. Free online copy & paste fancy nickname maker, case converter, and utility hub.",
-  
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   keywords: [
+    "fancy font generator",
+    "gaming nickname generator",
+    "free fire stylish name",
+    "bgmi name generator",
+    "instagram bio fonts",
     "online case converter",
-    "fancy fonts for instagram bio",
-    "free fire stylish nickname maker",
-    "bgmi stylish name generator",
     "word counter online tool",
     "clean messy text tool",
-    "text analytics",
-    "cool fonts copy paste",
-    "instagram font style modifier",
-    "stylish text generator",
-    "fancy text copy paste",
-    "fancycraft",
   ],
-  
   alternates: {
     canonical: "/",
   },
-
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   openGraph: {
-    title: "FancyCraft — Modern Text Utility Hub & Fancy Font Generator",
-    description:
-      "Convert case, generate 1000+ fancy fonts and gaming nicknames, analyze text, and clean messy text — 100% free, all in your browser.",
     type: "website",
-    url: "https://fancycraft.vercel.app",
-    siteName: "FancyCraft",
-    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
   },
 };
 
+// Runs synchronously in <head>, before React hydrates and before first
+// paint, so the correct theme class is already on <html> when the page
+// renders. This is what eliminates the light/dark "flash" on load — the
+// alternative (setting the class from a useEffect in page.tsx) always
+// paints one frame in the wrong theme first.
 const THEME_INIT_SCRIPT = `
 (function () {
   try {
-    var stored = window.localStorage.getItem("textcraft-theme");
+    var stored = window.localStorage.getItem("fancycraft-theme");
     var isDark = stored ? stored === "dark" : true;
     document.documentElement.classList.toggle("dark", isDark);
     document.documentElement.style.colorScheme = isDark ? "dark" : "light";
@@ -59,6 +68,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <StructuredData />
       </head>
       <body className="font-sans antialiased transition-colors duration-300" suppressHydrationWarning>
         {children}

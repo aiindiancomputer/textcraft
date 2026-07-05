@@ -47,9 +47,9 @@ export default function CaseConverter({ onCopy }: { onCopy: (msg: string) => voi
   return (
     <section aria-labelledby="case-converter-heading" className="flex flex-col gap-6">
       <div>
-        <h1 id="case-converter-heading" className="text-2xl font-semibold tracking-tight">
+        <h2 id="case-converter-heading" className="text-2xl font-semibold tracking-tight">
           Case Converter Studio
-        </h1>
+        </h2>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           A free online case converter — switch between uppercase, lowercase, title case, and
           more, instantly.

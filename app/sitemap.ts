@@ -1,16 +1,13 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://fancycraft.vercel.app";
-
   return [
     {
-      url: baseUrl,
+      url: SITE_URL,
       lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1.0,
+      changeFrequency: "weekly",
+      priority: 1,
     },
-    // Agar future me tum dusre pages banate ho (jaise /about ya /blog), 
-    // toh unhe bhi tum isi tarah niche list me add kar sakte ho.
   ];
 }
