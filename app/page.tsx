@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { Menu } from "lucide-react";
@@ -15,7 +15,9 @@ import type { ToolId } from "@/lib/types";
 const THEME_STORAGE_KEY = "fancycraft-theme";
 
 export default function Home() {
-  const [activeTool, setActiveTool] = useState<ToolId>("case-converter");
+  // 👈 Default tool ko badal kar "fancy-text" kar diya hai taaki sabse pehle yahi khule
+  const [activeTool, setActiveTool] = useState<ToolId>("fancy-text");
+  
   // The blocking script in app/layout.tsx already applied the right class
   // to <html> before this component ever mounts, so we read it back here
   // instead of guessing a default and flipping it after mount — that guess
@@ -110,10 +112,10 @@ export default function Home() {
 
           {/*
             `key={activeTool}` forces a clean remount per tool (rather than
-            patching the previous tool's DOM in place) and re-triggers the
-            fade-in keyframe, so switching tabs always reads as a single
-            deliberate transition instead of a partial re-render warping
-            mid-layout.
+            `patching the previous tool's DOM in place) and re-triggers the
+            `fade-in keyframe, so switching tabs always reads as a single
+            `deliberate transition instead of a partial re-render warping
+            `mid-layout.
           */}
           <div key={activeTool} className="mt-8 animate-fade-in">
             {activeTool === "case-converter" && <CaseConverter onCopy={showToast} />}
