@@ -15,29 +15,24 @@ import type { ToolId } from "@/lib/types";
 
 const THEME_STORAGE_KEY = "fancycraft-theme";
 
-// Main logic is inside this component to safely use useSearchParams()
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Default fallback is "fancy-text"
   const [activeTool, setActiveTool] = useState<ToolId>("fancy-text");
   const [isDark, setIsDark] = useState<boolean | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState<ToastState>({ message: "", visible: false });
 
-  // URL se current tool read karke state sync karne ke liye
   useEffect(() => {
     const toolFromUrl = searchParams.get("tool") as ToolId | null;
     if (toolFromUrl && ["case-converter", "fancy-text", "analytics", "cleaner"].includes(toolFromUrl)) {
       setActiveTool(toolFromUrl);
     } else {
-      // Agar URL me koi tool nahi hai (jaise plain home page), toh URL me ?tool=fancy-text push kar do
       router.replace("/?tool=fancy-text", { scroll: false });
     }
   }, [searchParams, router]);
 
-  // Sidebar ya click se tool change karne ka custom function
   const handleSelectTool = useCallback((toolId: ToolId) => {
     setActiveTool(toolId);
     router.push(`/?tool=${toolId}`, { scroll: false });
@@ -70,13 +65,10 @@ function HomeContent() {
   }, []);
 
   return (
-    <div
-      className="min-h-screen transition-colors duration-300"
-      style={{ backgroundColor: "var(--bg-app)" }}
-    >
+    <div className="min-h-screen transition-colors duration-300" style={{ backgroundColor: "var(--bg-app)" }}>
       <Sidebar
         activeTool={activeTool}
-        onSelectTool={handleSelectTool} // Hamara naya function jo URL badlega
+        onSelectTool={handleSelectTool}
         isDark={isDark ?? true}
         onToggleTheme={toggleTheme}
         isOpen={sidebarOpen}
@@ -99,13 +91,14 @@ function HomeContent() {
         </header>
 
         <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
+          
+          {/* 🎯 KEYWORDS OPTIMIZED FOR SEO AUDIT */}
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            FancyCraft — Fancy Font & Gaming Nickname Generator
+            FancyCraft - Fancy Font & Gaming Nickname Generator
           </h1>
           <p className="mt-2 max-w-2xl text-sm" style={{ color: "var(--text-secondary)" }}>
-            Free online tools to convert text case, generate 230+ fancy fonts and stylish
-            nicknames for Free Fire, BGMI, and Instagram bio, analyze word count, and clean up
-            messy text — instantly, with one click to copy.
+            Welcome to **FancyCraft**, the ultimate **Fancy Font & Gaming Nickname Generator**. 
+            Easily create stylish text, cool symbols, and custom names for Free Fire, BGMI, and Instagram bio.
           </p>
 
           <div key={activeTool} className="mt-8 animate-fade-in">
@@ -140,7 +133,6 @@ function HomeContent() {
   );
 }
 
-// Next.js requires useSearchParams to be wrapped in a Suspense boundary
 export default function Home() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading FancyCraft...</div>}>
