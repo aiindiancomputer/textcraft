@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Menu } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import AdPlaceholder from "@/components/AdPlaceholder";
@@ -14,25 +15,35 @@ import type { ToolId } from "@/lib/types";
 
 const THEME_STORAGE_KEY = "textcraft-theme";
 
-export default function Home() {
-  const [activeTool, setActiveTool] = useState<ToolId>("case-converter");
-  // The blocking script in app/layout.tsx already applied the right class
-  // to <html> before this component ever mounts, so we read it back here
-  // instead of guessing a default and flipping it after mount — that guess
-  // is what causes the one-frame theme flash.
+function DashboardContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // 1. URL parameter se active tool read karenge. Agar blank hai, toh default "fancy-text" set hoga!
+  const currentToolFromUrl = (searchParams.get("tool") as ToolId) || "fancy-text";
+  const [activeTool, setActiveTool] = useState<ToolId>(currentToolFromUrl);
+
   const [isDark, setIsDark] = useState<boolean | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState<ToastState>({ message: "", visible: false });
+
+  // Handle click on tabs/sidebar to update URL along with State
+  const handleToolChange = (toolId: ToolId) => {
+    setActiveTool(toolId);
+    router.push(`/?tool=${toolId}`, { scroll: false });
+  };
+
+  // Sync state if back/forward browser buttons are pressed
+  useEffect(() => {
+    if (currentToolFromUrl) {
+      setActiveTool(currentToolFromUrl);
+    }
+  }, [currentToolFromUrl]);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
-  // Lock background scroll while the mobile drawer is open. Without this,
-  // the page behind the overlay can still scroll, and on some browsers the
-  // scrollbar appearing/disappearing nudges the viewport width — which
-  // reads as the exact "jitter" a fixed-position drawer is supposed to
-  // avoid.
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
     return () => {
@@ -62,21 +73,13 @@ export default function Home() {
     >
       <Sidebar
         activeTool={activeTool}
-        onSelectTool={setActiveTool}
+        onSelectTool={handleToolChange} // Router wrapped wrapper pass kiya
         isDark={isDark ?? true}
         onToggleTheme={toggleTheme}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/*
-        This wrapper reserves the sidebar's width with a static `lg:pl-72`
-        instead of putting the sidebar inside the flex flow. Since the
-        sidebar is always `fixed` (see Sidebar.tsx), this padding is the
-        only thing standing in for its width — it never changes at
-        runtime, so there is nothing here that can shift when the drawer
-        opens/closes or when the theme toggles.
-      */}
       <div className="flex min-h-screen flex-col lg:pl-72">
         <header
           className="sticky top-0 z-20 flex items-center gap-3 border-b px-5 py-3.5 backdrop-blur transition-colors duration-300 lg:hidden"
@@ -89,17 +92,11 @@ export default function Home() {
           >
             <Menu size={20} />
           </button>
-          <span className="text-sm font-semibold">TextCraft</span>
+          {/* Header branding changed to FancyCraft */}
+          <span className="text-sm font-semibold">FancyCraft</span>
         </header>
 
         <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
-          {/*
-            `key={activeTool}` forces a clean remount per tool (rather than
-            patching the previous tool's DOM in place) and re-triggers the
-            fade-in keyframe, so switching tabs always reads as a single
-            deliberate transition instead of a partial re-render warping
-            mid-layout.
-          */}
           <div key={activeTool} className="animate-fade-in">
             {activeTool === "case-converter" && <CaseConverter onCopy={showToast} />}
             {activeTool === "fancy-text" && <FancyTextGenerator onCopy={showToast} />}
@@ -115,12 +112,13 @@ export default function Home() {
             <FAQSection />
           </div>
 
+          {/* Footer branding changed to FancyCraft */}
           <footer
             className="mt-12 border-t pt-6 text-center text-xs transition-colors duration-300"
             style={{ borderColor: "var(--border-color)", color: "var(--text-muted)" }}
           >
             <p>
-              TextCraft — free online case converter, fancy font generator, word counter, and
+              FancyCraft — free online case converter, fancy font generator, word counter, and
               text cleaner. No sign-up, no tracking, no server.
             </p>
           </footer>
@@ -129,5 +127,14 @@ export default function Home() {
 
       <Toast toast={toast} />
     </div>
+  );
+}
+
+// Next.js App Router rules ke mutabik searchParams use karne par components ko Suspense me wrap karna mandatory hota hai build success ke liye.
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-sm">Loading FancyCraft Toolset...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
