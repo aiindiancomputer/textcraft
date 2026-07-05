@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   CaseSensitive,
@@ -114,18 +114,10 @@ export default function Sidebar({
                   onClose();
                 }}
                 className={`focus-ring group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
-                  active ? "shadow-glow" : ""
+                  active 
+                    ? "shadow-glow bg-[var(--accent)] text-white" 
+                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-sunken)]"
                 }`}
-                style={{
-                  backgroundColor: active ? "var(--accent)" : "transparent",
-                  color: active ? "#ffffff" : "var(--text-secondary)",
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.backgroundColor = "var(--bg-sunken)";
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.backgroundColor = "transparent";
-                }}
                 aria-current={active ? "page" : undefined}
               >
                 <Icon size={17} strokeWidth={2} />

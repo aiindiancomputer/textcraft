@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Menu } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import AdPlaceholder from "@/components/AdPlaceholder";
@@ -14,27 +15,38 @@ import type { ToolId } from "@/lib/types";
 
 const THEME_STORAGE_KEY = "fancycraft-theme";
 
-export default function Home() {
-  // 👈 Default tool ko badal kar "fancy-text" kar diya hai taaki sabse pehle yahi khule
-  const [activeTool, setActiveTool] = useState<ToolId>("fancy-text");
+// Main logic is inside this component to safely use useSearchParams()
+function HomeContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   
-  // The blocking script in app/layout.tsx already applied the right class
-  // to <html> before this component ever mounts, so we read it back here
-  // instead of guessing a default and flipping it after mount — that guess
-  // is what causes the one-frame theme flash.
+  // Default fallback is "fancy-text"
+  const [activeTool, setActiveTool] = useState<ToolId>("fancy-text");
   const [isDark, setIsDark] = useState<boolean | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState<ToastState>({ message: "", visible: false });
+
+  // URL se current tool read karke state sync karne ke liye
+  useEffect(() => {
+    const toolFromUrl = searchParams.get("tool") as ToolId | null;
+    if (toolFromUrl && ["case-converter", "fancy-text", "analytics", "cleaner"].includes(toolFromUrl)) {
+      setActiveTool(toolFromUrl);
+    } else {
+      // Agar URL me koi tool nahi hai (jaise plain home page), toh URL me ?tool=fancy-text push kar do
+      router.replace("/?tool=fancy-text", { scroll: false });
+    }
+  }, [searchParams, router]);
+
+  // Sidebar ya click se tool change karne ka custom function
+  const handleSelectTool = useCallback((toolId: ToolId) => {
+    setActiveTool(toolId);
+    router.push(`/?tool=${toolId}`, { scroll: false });
+  }, [router]);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
-  // Lock background scroll while the mobile drawer is open. Without this,
-  // the page behind the overlay can still scroll, and on some browsers the
-  // scrollbar appearing/disappearing nudges the viewport width — which
-  // reads as the exact "jitter" a fixed-position drawer is supposed to
-  // avoid.
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
     return () => {
@@ -64,21 +76,13 @@ export default function Home() {
     >
       <Sidebar
         activeTool={activeTool}
-        onSelectTool={setActiveTool}
+        onSelectTool={handleSelectTool} // Hamara naya function jo URL badlega
         isDark={isDark ?? true}
         onToggleTheme={toggleTheme}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/*
-        This wrapper reserves the sidebar's width with a static `lg:pl-72`
-        instead of putting the sidebar inside the flex flow. Since the
-        sidebar is always `fixed` (see Sidebar.tsx), this padding is the
-        only thing standing in for its width — it never changes at
-        runtime, so there is nothing here that can shift when the drawer
-        opens/closes or when the theme toggles.
-      */}
       <div className="flex min-h-screen flex-col lg:pl-72">
         <header
           className="sticky top-0 z-20 flex items-center gap-3 border-b px-5 py-3.5 backdrop-blur transition-colors duration-300 lg:hidden"
@@ -95,12 +99,6 @@ export default function Home() {
         </header>
 
         <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
-          {/*
-            This is the ONLY <h1> on the page — every tool component below
-            uses <h2> for its own heading. One h1 with the primary keyword
-            context is what the SEO audit is asking for; the tool switcher
-            underneath organizes the rest of the content under it.
-          */}
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             FancyCraft — Fancy Font & Gaming Nickname Generator
           </h1>
@@ -110,13 +108,6 @@ export default function Home() {
             messy text — instantly, with one click to copy.
           </p>
 
-          {/*
-            `key={activeTool}` forces a clean remount per tool (rather than
-            `patching the previous tool's DOM in place) and re-triggers the
-            `fade-in keyframe, so switching tabs always reads as a single
-            `deliberate transition instead of a partial re-render warping
-            `mid-layout.
-          */}
           <div key={activeTool} className="mt-8 animate-fade-in">
             {activeTool === "case-converter" && <CaseConverter onCopy={showToast} />}
             {activeTool === "fancy-text" && <FancyTextGenerator onCopy={showToast} />}
@@ -146,5 +137,14 @@ export default function Home() {
 
       <Toast toast={toast} />
     </div>
+  );
+}
+
+// Next.js requires useSearchParams to be wrapped in a Suspense boundary
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading FancyCraft...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
