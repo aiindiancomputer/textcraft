@@ -1,4 +1,4 @@
-export interface LogoTemplate {
+﻿export interface LogoTemplate {
   id: string;
   label: string;
   /** Draws the background onto an already-sized canvas context. */
@@ -156,6 +156,65 @@ function drawGridTemplate(ctx: CanvasRenderingContext2D, width: number, height: 
   ctx.fillRect(0, 0, width, height);
 }
 
+// NEW: Anime Sunburst Ray Background (Perfect for high energy gaming logos)
+function drawSunburstTemplate(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  fillRect(ctx, width, height, "#7C2D12"); // Dark base rust red
+
+  ctx.save();
+  ctx.translate(width / 2, height / 2);
+  const numRays = 28;
+  const angleStep = (Math.PI * 2) / numRays;
+  ctx.fillStyle = "#EA580C"; // Vibrant orange rays
+  
+  for (let i = 0; i < numRays; i++) {
+    if (i % 2 === 0) {
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, Math.max(width, height) * 1.5, i * angleStep, (i + 1) * angleStep);
+      ctx.lineTo(0, 0);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+
+  // Dark vignette blend
+  const vignette = ctx.createRadialGradient(
+    width / 2, height / 2, height * 0.2,
+    width / 2, height / 2, height * 0.75
+  );
+  vignette.addColorStop(0, "rgba(0,0,0,0)");
+  vignette.addColorStop(1, "rgba(0,0,0,0.65)");
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, width, height);
+}
+
+// NEW: Cyber Scanline Matrix Glow (Cyberpunk style)
+function drawCyberpunkTemplate(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  fillRect(ctx, width, height, "#0F172A"); // Slate-900 baseline
+
+  ctx.save();
+  ctx.strokeStyle = "#FF0055"; // Hot pink cyberpunk lines
+  ctx.globalAlpha = 0.15;
+  ctx.lineWidth = 2;
+  const spacing = 15;
+  for (let x = 0; x < width * 2; x += spacing) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x - height, height);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  const glow = ctx.createRadialGradient(
+    width / 2, height / 2, 10,
+    width / 2, height / 2, height * 0.6
+  );
+  glow.addColorStop(0, "rgba(236,72,153,0.25)");
+  glow.addColorStop(1, "rgba(15,23,42,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, width, height);
+}
+
 // No background fill at all — useful for exporting a logo/watermark with
 // a transparent PNG background to drop onto a profile picture elsewhere.
 function drawTransparentTemplate(ctx: CanvasRenderingContext2D, width: number, height: number) {
@@ -167,5 +226,7 @@ export const LOGO_TEMPLATES: LogoTemplate[] = [
   { id: "shield", label: "Esports Shield", draw: drawShieldTemplate },
   { id: "neon", label: "Neon Abstract", draw: drawNeonTemplate },
   { id: "grid", label: "Dark Tech Grid", draw: drawGridTemplate },
+  { id: "sunburst", label: "Anime Sunburst", draw: drawSunburstTemplate },
+  { id: "cyberpunk", label: "Cyber Scanline", draw: drawCyberpunkTemplate },
   { id: "transparent", label: "Transparent (PNG)", draw: drawTransparentTemplate },
 ];
