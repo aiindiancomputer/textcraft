@@ -1,4 +1,4 @@
-﻿import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/seo";
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from "@/lib/seo";
 import type { ToolId } from "@/lib/types";
 
 export interface ToolMeta {
@@ -8,37 +8,44 @@ export interface ToolMeta {
   path: string;
 }
 
-// Default page config with ultra-high-volume Hinglish keywords for direct root search
+// The default entry (no `tool` param, or an unrecognized one) intentionally
+// mirrors the site-wide metadata from lib/seo.ts — one source of truth for
+// the root page's title/description instead of duplicating it here.
 const DEFAULT_META: ToolMeta = {
-  title: "FancyCraft — Fancy Font Generator & Stylish Nickname Creator",
-  description: "Free Fire aur BGMI me stylish name kaise likhe? Create 1000+ cool text symbols, clan fonts, and gaming nicknames instantly. Copy & paste free!",
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   path: "/",
 };
 
 export const TOOL_METADATA: Record<ToolId, ToolMeta> = {
-  "fancy-text": {
-    title: "Fancy Font Style for Free Fire & BGMI Nickname Generator",
-    description: "Gaming name font style aur stylish keyboard text generator online. Apne Free Fire clan aur Instagram bio ke liye cool nickname copy paste karein!",
-    path: "/?tool=fancy-text",
-  },
   "case-converter": {
-    title: "Free Online Case Converter & Text Cleaner Tool — FancyCraft",
-    description: "Apne text ko UPPERCASE, lowercase, ya title case me convert karein instantly. Free online text cleaner tool to format texts easily.",
+    title: "Free Online Case Converter Tool | FancyCraft",
+    description:
+      "Convert text to UPPERCASE, lowercase, Title Case, Sentence case, or a URL slug instantly. Free online case converter with one-click copy, no sign-up.",
     path: "/?tool=case-converter",
   },
+  "fancy-text": {
+    title: "Fancy Font & Gaming Nickname Generator | FancyCraft",
+    description:
+      "Generate 230+ fancy fonts, cool text symbols, and stylish nicknames for Free Fire, BGMI, and Instagram bio instantly. Copy and paste with one click!",
+    path: "/?tool=fancy-text",
+  },
   "logo-generator": {
-    title: "Free Fire Guild Logo Maker with Name — BGMI Clan Logo Generator",
-    description: "Gaming avatar text maker aur 3D esports logo creator app online. Gaming logo kaise banaye? Design cool clan emblems with stylish fonts in HD!",
+    title: "Free Fire Guild Logo Maker & BGMI Clan Logo Generator",
+    description:
+      "Create a 3D-style esports logo, gaming avatar, or clan emblem for free. Choose shield, neon, or dark templates and export an HD PNG instantly.",
     path: "/?tool=logo-generator",
   },
   analytics: {
     title: "Word Counter & Text Analytics Tool | FancyCraft",
-    description: "Count words, characters, and sentences, and get accurate reading and speaking time estimates. Free online word counter tool with zero sign-up.",
+    description:
+      "Count words, characters, and sentences, and get accurate reading and speaking time estimates. Free online word counter tool with zero sign-up.",
     path: "/?tool=analytics",
   },
   cleaner: {
     title: "Clean Messy Text Online - Remove Spaces & HTML | FancyCraft",
-    description: "Remove extra spaces, empty lines, HTML tags, and emojis from any text in one click. Free online tool to clean messy text - nothing leaves your browser.",
+    description:
+      "Remove extra spaces, empty lines, HTML tags, and emojis from any text in one click. Free online tool to clean messy text - nothing leaves your browser.",
     path: "/?tool=cleaner",
   },
 };
