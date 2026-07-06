@@ -34,4 +34,9 @@ export const FAQS: FaqItem[] = [
     answer:
       "No. Every tool on FancyCraft runs entirely client-side using your browser's JavaScript engine. Your text never leaves your device, there is no backend, no database, and no account required.",
   },
+  {
+    question: "Is the gaming logo and clan emblem maker really free?",
+    answer:
+      "Yes. The logo generator draws entirely on an HTML5 canvas in your browser — there's no upload, no account, and no watermark. Pick a background template, style your clan or nickname text with any of the built-in fonts, adjust color, stroke, and glow, then export a full-resolution PNG for your Free Fire guild, BGMI clan, Discord server, or Instagram profile picture.",
+  },
 ];

@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import {
   CaseSensitive,
   Sparkles,
   BarChart3,
   Eraser,
+  Shield,
   Moon,
   Sun,
   Wand2,
@@ -25,6 +26,7 @@ interface SidebarProps {
 const NAV_ITEMS: { id: ToolId; label: string; icon: typeof CaseSensitive }[] = [
   { id: "case-converter", label: "Case Converter", icon: CaseSensitive },
   { id: "fancy-text", label: "Fancy Text Generator", icon: Sparkles },
+  { id: "logo-generator", label: "Logo & Avatar Generator", icon: Shield },
   { id: "analytics", label: "Text Analytics", icon: BarChart3 },
   { id: "cleaner", label: "Text Cleaner", icon: Eraser },
 ];
@@ -114,10 +116,18 @@ export default function Sidebar({
                   onClose();
                 }}
                 className={`focus-ring group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
-                  active 
-                    ? "shadow-glow bg-[var(--accent)] text-white" 
-                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-sunken)]"
+                  active ? "shadow-glow" : ""
                 }`}
+                style={{
+                  backgroundColor: active ? "var(--accent)" : "transparent",
+                  color: active ? "#ffffff" : "var(--text-secondary)",
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) e.currentTarget.style.backgroundColor = "var(--bg-sunken)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) e.currentTarget.style.backgroundColor = "transparent";
+                }}
                 aria-current={active ? "page" : undefined}
               >
                 <Icon size={17} strokeWidth={2} />

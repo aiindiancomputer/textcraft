@@ -1,21 +1,19 @@
-﻿import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import StructuredData from "@/components/StructuredData";
+import { SITE_NAME, SITE_URL, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://fancycraft.vercel.app"), // 👈 Agar tumne custom domain lagaya hai toh "https://fancycraft.com" ya apna domain daal dena
-  title: "FancyCraft - Fancy Font & Gaming Nickname Generator",
-  description: "Generate 1000+ stylish fonts, cool text symbols, and custom nicknames for Free Fire, BGMI, and Instagram bio instantly. Copy and paste with one click!",
-  applicationName: "FancyCraft",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   keywords: [
     "fancy font generator",
     "gaming nickname generator",
     "free fire stylish name",
     "bgmi name generator",
     "instagram bio fonts",
-    "cool text symbols",
-    "ff style name killer",
-    "stylish text copy paste",
     "online case converter",
     "word counter online tool",
     "clean messy text tool",
@@ -23,33 +21,31 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  manifest: "/manifest.webmanifest",
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
     },
   },
   openGraph: {
     type: "website",
-    url: "https://fancycraft.vercel.app",
-    siteName: "FancyCraft",
-    title: "FancyCraft - Fancy Font & Gaming Nickname Generator",
-    description: "Generate 1000+ stylish fonts, cool text symbols, and custom nicknames for Free Fire, BGMI, and Instagram bio instantly. Copy and paste with one click!",
-    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
   },
   twitter: {
-    card: "summary_large_image",
-    title: "FancyCraft - Fancy Font & Gaming Nickname Generator",
-    description: "Generate 1000+ stylish fonts, cool text symbols, and custom nicknames for Free Fire, BGMI, and Instagram bio instantly. Copy and paste with one click!",
+    card: "summary",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
   },
-  verification: {
-    google: "P4rSdfu8Xz_9LMqA1Bv7Y3cE6tW_kNz4oXp2QrSm5Tu",
-  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#6366F1",
 };
 
 // Runs synchronously in <head>, before React hydrates and before first
@@ -76,11 +72,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#000000" />
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <StructuredData />
       </head>
-      <body className="font-sans antialiased transition-colors duration-300 bg-background text-foreground" suppressHydrationWarning>
+      <body className="font-sans antialiased transition-colors duration-300" suppressHydrationWarning>
         {children}
       </body>
     </html>
