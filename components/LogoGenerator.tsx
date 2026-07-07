@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Download, Shield } from "lucide-react";
+import { Download, Sparkles, Ban } from "lucide-react";
 import { FANCY_STYLES } from "@/lib/textUtils";
-import { LOGO_TEMPLATES } from "@/lib/logoTemplates";
+import { LOGO_TEMPLATES, type LogoTemplate, type BackgroundOptions } from "@/lib/logoTemplates";
+import { MASCOTS, type MascotDef } from "@/lib/logoMascots";
+import { layoutArcText, resolveArcRadius } from "@/lib/textArc";
 
 // A curated slice of the app's existing font-transform engine — reusing
 // FANCY_STYLES here (rather than inventing a second font system) means a
@@ -20,8 +22,9 @@ const TEXT_STYLES = [
 
 const CANVAS_SIZE = 800; // internal render resolution — kept high for a
 // crisp HD PNG export regardless of how small the preview is displayed.
-const MAX_FONT_SIZE = 140;
-const MIN_FONT_SIZE = 32;
+const MAX_FONT_SIZE = 160;
+const MIN_FONT_SIZE = 28;
+const NONE_MASCOT_ID = "none";
 
 function slugify(text: string): string {
   return (
@@ -33,35 +36,194 @@ function slugify(text: string): string {
   );
 }
 
+// --- Small live-preview thumbnails for the template/mascot pickers --------
+
+function TemplateThumbnail({
+  template,
+  baseColor,
+  accentColor,
+}: {
+  template: LogoTemplate;
+  baseColor: string;
+  accentColor: string;
+}) {
+  const ref = useRef<HTMLCanvasElement | null>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const size = canvas.width;
+    const options: BackgroundOptions = {
+      baseColor,
+      accentColor,
+      patternOpacity: 70,
+      vignetteIntensity: 25,
+    };
+    ctx.clearRect(0, 0, size, size);
+    template.draw(ctx, size, size, options);
+  }, [template, baseColor, accentColor]);
+  return (
+    <canvas
+      ref={ref}
+      width={56}
+      height={56}
+      className="h-9 w-9 rounded-md border"
+      style={{ borderColor: "var(--border-color)" }}
+    />
+  );
+}
+
+function MascotThumbnail({
+  mascot,
+  color,
+  accent,
+}: {
+  mascot: MascotDef | null;
+  color: string;
+  accent: string;
+}) {
+  const ref = useRef<HTMLCanvasElement | null>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const size = canvas.width;
+    ctx.clearRect(0, 0, size, size);
+    if (!mascot) return;
+    ctx.save();
+    ctx.translate(size / 2, size / 2);
+    ctx.scale((size * 0.42) / 100, (size * 0.42) / 100);
+    mascot.draw(ctx, color, accent);
+    ctx.restore();
+  }, [mascot, color, accent]);
+  return (
+    <canvas
+      ref={ref}
+      width={56}
+      height={56}
+      className="h-9 w-9 rounded-md border"
+      style={{ borderColor: "var(--border-color)", backgroundColor: "var(--bg-sunken)" }}
+    />
+  );
+}
+
+// --- Slider control (shared layout for the many range inputs below) ------
+
+function SliderControl({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+  suffix = "",
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+  suffix?: string;
+}) {
+  return (
+    <label className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+      {label} ({value}{suffix})
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="mt-1 w-full accent-[var(--accent)]"
+      />
+    </label>
+  );
+}
+
+function ColorControl({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+      {label}
+      <input
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 w-full cursor-pointer rounded-lg border"
+        style={{ borderColor: "var(--border-color)" }}
+      />
+    </label>
+  );
+}
+
 export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => void }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  // Text
   const [text, setText] = useState("CLAN");
   const [styleId, setStyleId] = useState("bold");
-  const [templateId, setTemplateId] = useState("shield");
-  const [textColor, setTextColor] = useState("#FFFFFF");
-  const [fontSize, setFontSize] = useState(96);
+  const [fontSize, setFontSize] = useState(110);
+  const [arcIntensity, setArcIntensity] = useState(0); // -100..100, 0 = plain
+
+  // Theme colors (the 5 named roles from the spec)
+  const [primaryColor, setPrimaryColor] = useState("#FFFFFF"); // text gradient top + mascot fill
+  const [secondaryColor, setSecondaryColor] = useState("#8B5CF6"); // text gradient bottom + bg accent + mascot accent
   const [strokeColor, setStrokeColor] = useState("#111827");
-  const [strokeWidth, setStrokeWidth] = useState(4);
-  const [glowEnabled, setGlowEnabled] = useState(true);
   const [glowColor, setGlowColor] = useState("#8B5CF6");
+  const [baseColor, setBaseColor] = useState("#0B0F19"); // background base / badge mask color
+
+  const [strokeWidth, setStrokeWidth] = useState(5);
+  const [glowEnabled, setGlowEnabled] = useState(true);
+
+  // Background
+  const [templateId, setTemplateId] = useState("shield");
+  const [patternOpacity, setPatternOpacity] = useState(65);
+  const [vignetteIntensity, setVignetteIntensity] = useState(45);
+
+  // Mascot / avatar overlay
+  const [mascotId, setMascotId] = useState<string>(NONE_MASCOT_ID);
+  const [mascotScale, setMascotScale] = useState(100);
+  const [mascotOffsetX, setMascotOffsetX] = useState(0);
+  const [mascotOffsetY, setMascotOffsetY] = useState(-140);
 
   const activeTemplate = LOGO_TEMPLATES.find((t) => t.id === templateId) ?? LOGO_TEMPLATES[0];
   const activeStyle = TEXT_STYLES.find((s) => s.id === styleId) ?? TEXT_STYLES[0];
+  const activeMascot = MASCOTS.find((m) => m.id === mascotId) ?? null;
   const displayText = activeStyle.render(text || "CLAN");
 
-  // Redraws the full canvas any time an input changes. This is a plain
-  // synchronous 2D-context draw — no external image loads, no network
-  // calls — so it stays instant even at 800x800 internal resolution.
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
 
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    activeTemplate.draw(ctx, CANVAS_SIZE, CANVAS_SIZE);
 
+    // 1. Background
+    activeTemplate.draw(ctx, CANVAS_SIZE, CANVAS_SIZE, {
+      baseColor,
+      accentColor: secondaryColor,
+      patternOpacity,
+      vignetteIntensity,
+    });
+
+    // 2. Mascot / avatar overlay — drawn in its own local -100..100 space,
+    // then translated/scaled into position on the real canvas.
+    if (activeMascot) {
+      const mascotRadius = CANVAS_SIZE * 0.22 * (mascotScale / 100);
+      ctx.save();
+      ctx.translate(CANVAS_SIZE / 2 + mascotOffsetX, CANVAS_SIZE / 2 + mascotOffsetY);
+      ctx.scale(mascotRadius / 100, mascotRadius / 100);
+      activeMascot.draw(ctx, primaryColor, secondaryColor);
+      ctx.restore();
+    }
+
+    // 3. Text
     const cx = CANVAS_SIZE / 2;
     const cy = CANVAS_SIZE / 2;
     const maxTextWidth = CANVAS_SIZE * 0.86;
@@ -69,37 +231,77 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // Auto-shrink font size only if the chosen text would overflow the
-    // canvas at the user's requested size — the slider stays the upper
-    // bound, not a fixed value that could clip long clan names.
     let renderSize = fontSize;
-    ctx.font = `900 ${renderSize}px "Arial Black", "Segoe UI", system-ui, sans-serif`;
-    while (ctx.measureText(displayText).width > maxTextWidth && renderSize > MIN_FONT_SIZE) {
-      renderSize -= 2;
-      ctx.font = `900 ${renderSize}px "Arial Black", "Segoe UI", system-ui, sans-serif`;
+    const fontString = (size: number) => `900 ${size}px "Arial Black", "Segoe UI", system-ui, sans-serif`;
+    ctx.font = fontString(renderSize);
+
+    // Plain mode auto-shrinks to fit the canvas width. Arc mode instead
+    // loosens the curve for long text (see resolveArcRadius) rather than
+    // shrinking the font, since a badge-arc reads better with consistent
+    // letter size than with tiny letters.
+    if (arcIntensity === 0) {
+      while (ctx.measureText(displayText).width > maxTextWidth && renderSize > MIN_FONT_SIZE) {
+        renderSize -= 2;
+        ctx.font = fontString(renderSize);
+      }
     }
 
-    if (glowEnabled) {
-      ctx.shadowColor = glowColor;
-      ctx.shadowBlur = CANVAS_SIZE * 0.045;
+    const drawGlyph = (glyphText: string, x: number, y: number, rotation: number) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+
+      const gradHeight = renderSize * 1.1;
+      const textGradient = ctx.createLinearGradient(0, -gradHeight / 2, 0, gradHeight / 2);
+      textGradient.addColorStop(0, primaryColor);
+      textGradient.addColorStop(1, secondaryColor);
+
+      // Pass 1: soft glow aura — blurred fill + a fatter blurred stroke,
+      // both using the glow color, so a halo sits behind the crisp letter.
+      if (glowEnabled) {
+        ctx.save();
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = renderSize * 0.4;
+        ctx.fillStyle = textGradient;
+        ctx.fillText(glyphText, 0, 0);
+        if (strokeWidth > 0) {
+          ctx.lineWidth = strokeWidth + 6;
+          ctx.strokeStyle = glowColor;
+          ctx.lineJoin = "round";
+          ctx.strokeText(glyphText, 0, 0);
+        }
+        ctx.restore();
+      }
+
+      // Pass 2: crisp primary stroke + gradient fill on top, shadow off
+      // so this pass stays sharp regardless of the glow pass above it.
+      if (strokeWidth > 0) {
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineJoin = "round";
+        ctx.strokeText(glyphText, 0, 0);
+      }
+      ctx.fillStyle = textGradient;
+      ctx.fillText(glyphText, 0, 0);
+
+      ctx.restore();
+    };
+
+    if (arcIntensity === 0) {
+      drawGlyph(displayText, cx, cy, 0);
     } else {
-      ctx.shadowBlur = 0;
+      const direction: "up" | "down" = arcIntensity > 0 ? "up" : "down";
+      const radius = resolveArcRadius(ctx, displayText, Math.abs(arcIntensity));
+      const placements = layoutArcText(ctx, displayText, cx, cy, radius, direction);
+      for (const glyph of placements) {
+        drawGlyph(glyph.char, glyph.x, glyph.y, glyph.rotation);
+      }
     }
-
-    if (strokeWidth > 0) {
-      ctx.lineWidth = strokeWidth;
-      ctx.strokeStyle = strokeColor;
-      ctx.lineJoin = "round";
-      ctx.strokeText(displayText, cx, cy);
-    }
-
-    ctx.fillStyle = textColor;
-    ctx.fillText(displayText, cx, cy);
-
-    // Reset shadow so it never bleeds into a future draw call (e.g. if a
-    // template ever paints something after the text in a later change).
-    ctx.shadowBlur = 0;
-  }, [displayText, templateId, textColor, fontSize, strokeColor, strokeWidth, glowEnabled, glowColor, activeTemplate]);
+  }, [
+    displayText, activeTemplate, activeMascot, baseColor, secondaryColor, primaryColor,
+    patternOpacity, vignetteIntensity, mascotScale, mascotOffsetX, mascotOffsetY,
+    fontSize, arcIntensity, glowEnabled, glowColor, strokeColor, strokeWidth,
+  ]);
 
   function handleDownload() {
     const canvas = canvasRef.current;
@@ -112,6 +314,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
     onCopy("HD logo downloaded");
   }
 
+  const avatarMascots = MASCOTS.filter((m) => m.category === "avatar");
+  const iconMascots = MASCOTS.filter((m) => m.category === "icon");
+
   return (
     <section aria-labelledby="logo-generator-heading" className="flex flex-col gap-6">
       <div>
@@ -121,7 +326,7 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           Design a 3D-style esports logo generator experience for free, right in your browser —
           perfect as a Free Fire or BGMI clan emblem, a gaming avatar, or an Instagram profile
-          picture editor upgrade. Type your name, pick a style, and export instantly.
+          picture editor upgrade. Add a mascot, arch your clan name, and export instantly.
         </p>
       </div>
 
@@ -183,77 +388,163 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
         </div>
       </div>
 
+      {/* Text arc */}
+      <div>
+        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+          Text Path Effect
+        </h3>
+        <div className="mb-2 flex gap-2">
+          {[
+            { label: "Plain", value: 0 },
+            { label: "Arched Upward", value: 55 },
+            { label: "Arched Downward", value: -55 },
+          ].map((preset) => (
+            <button
+              key={preset.label}
+              onClick={() => setArcIntensity(preset.value)}
+              className="focus-ring rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors duration-200"
+              style={{
+                backgroundColor:
+                  (preset.value === 0 && arcIntensity === 0) ||
+                  (preset.value > 0 && arcIntensity > 0) ||
+                  (preset.value < 0 && arcIntensity < 0)
+                    ? "var(--accent)"
+                    : "transparent",
+                borderColor:
+                  (preset.value === 0 && arcIntensity === 0) ||
+                  (preset.value > 0 && arcIntensity > 0) ||
+                  (preset.value < 0 && arcIntensity < 0)
+                    ? "var(--accent)"
+                    : "var(--border-color)",
+                color:
+                  (preset.value === 0 && arcIntensity === 0) ||
+                  (preset.value > 0 && arcIntensity > 0) ||
+                  (preset.value < 0 && arcIntensity < 0)
+                    ? "#ffffff"
+                    : "var(--text-secondary)",
+              }}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+        <SliderControl
+          label="Text Arc Intensity"
+          value={arcIntensity}
+          min={-100}
+          max={100}
+          onChange={setArcIntensity}
+        />
+      </div>
+
       {/* Background templates */}
       <div>
         <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
           Background Template
         </h3>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {LOGO_TEMPLATES.map((template) => (
             <button
               key={template.id}
               onClick={() => setTemplateId(template.id)}
-              className="focus-ring flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors duration-200"
+              className="focus-ring flex flex-col items-center gap-1.5 rounded-lg border p-2 text-center transition-colors duration-200"
               style={{
-                backgroundColor: templateId === template.id ? "var(--accent)" : "transparent",
+                backgroundColor: templateId === template.id ? "var(--accent)" : "var(--bg-raised)",
                 borderColor: templateId === template.id ? "var(--accent)" : "var(--border-color)",
-                color: templateId === template.id ? "#ffffff" : "var(--text-secondary)",
               }}
             >
-              <Shield size={12} />
-              {template.label}
+              <TemplateThumbnail template={template} baseColor={baseColor} accentColor={secondaryColor} />
+              <span
+                className="text-[10px] font-semibold leading-tight"
+                style={{ color: templateId === template.id ? "#ffffff" : "var(--text-secondary)" }}
+              >
+                {template.label}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Fine-tune controls */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <label className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Text Color
-          <input
-            type="color"
-            value={textColor}
-            onChange={(e) => setTextColor(e.target.value)}
-            className="h-10 w-full cursor-pointer rounded-lg border"
-            style={{ borderColor: "var(--border-color)" }}
-          />
-        </label>
-        <label className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Stroke Color
-          <input
-            type="color"
-            value={strokeColor}
-            onChange={(e) => setStrokeColor(e.target.value)}
-            className="h-10 w-full cursor-pointer rounded-lg border"
-            style={{ borderColor: "var(--border-color)" }}
-          />
-        </label>
-        <label className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Font Size ({fontSize}px)
-          <input
-            type="range"
-            min={MIN_FONT_SIZE}
-            max={MAX_FONT_SIZE}
-            value={fontSize}
-            onChange={(e) => setFontSize(Number(e.target.value))}
-            className="mt-2 w-full accent-[var(--accent)]"
-          />
-        </label>
-        <label className="flex flex-col gap-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-          Stroke Width ({strokeWidth}px)
-          <input
-            type="range"
-            min={0}
-            max={12}
-            value={strokeWidth}
-            onChange={(e) => setStrokeWidth(Number(e.target.value))}
-            className="mt-2 w-full accent-[var(--accent)]"
-          />
-        </label>
+      {/* Mascot / avatar overlay */}
+      <div>
+        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+          Mascot &amp; Avatar Overlay
+        </h3>
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+          <button
+            onClick={() => setMascotId(NONE_MASCOT_ID)}
+            className="focus-ring flex flex-col items-center gap-1.5 rounded-lg border p-2 text-center transition-colors duration-200"
+            style={{
+              backgroundColor: mascotId === NONE_MASCOT_ID ? "var(--accent)" : "var(--bg-raised)",
+              borderColor: mascotId === NONE_MASCOT_ID ? "var(--accent)" : "var(--border-color)",
+            }}
+          >
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-md border"
+              style={{ borderColor: "var(--border-color)", backgroundColor: "var(--bg-sunken)" }}
+            >
+              <Ban size={16} style={{ color: "var(--text-muted)" }} />
+            </span>
+            <span
+              className="text-[10px] font-semibold"
+              style={{ color: mascotId === NONE_MASCOT_ID ? "#ffffff" : "var(--text-secondary)" }}
+            >
+              None
+            </span>
+          </button>
+          {[...avatarMascots, ...iconMascots].map((mascot) => (
+            <button
+              key={mascot.id}
+              onClick={() => setMascotId(mascot.id)}
+              className="focus-ring flex flex-col items-center gap-1.5 rounded-lg border p-2 text-center transition-colors duration-200"
+              style={{
+                backgroundColor: mascotId === mascot.id ? "var(--accent)" : "var(--bg-raised)",
+                borderColor: mascotId === mascot.id ? "var(--accent)" : "var(--border-color)",
+              }}
+            >
+              <MascotThumbnail mascot={mascot} color={primaryColor} accent={secondaryColor} />
+              <span
+                className="text-[10px] font-semibold leading-tight"
+                style={{ color: mascotId === mascot.id ? "#ffffff" : "var(--text-secondary)" }}
+              >
+                {mascot.label}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {activeMascot && (
+          <div className="mt-4 grid grid-cols-3 gap-4">
+            <SliderControl label="Icon Scale" value={mascotScale} min={40} max={220} onChange={setMascotScale} suffix="%" />
+            <SliderControl label="Icon X Offset" value={mascotOffsetX} min={-250} max={250} onChange={setMascotOffsetX} />
+            <SliderControl label="Icon Y Offset" value={mascotOffsetY} min={-250} max={250} onChange={setMascotOffsetY} />
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      {/* Theme colors */}
+      <div>
+        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+          Theme Colors
+        </h3>
+        <div className="grid grid-cols-3 gap-4 sm:grid-cols-5">
+          <ColorControl label="Primary Color" value={primaryColor} onChange={setPrimaryColor} />
+          <ColorControl label="Secondary Color" value={secondaryColor} onChange={setSecondaryColor} />
+          <ColorControl label="Stroke Color" value={strokeColor} onChange={setStrokeColor} />
+          <ColorControl label="Glow Aura Color" value={glowColor} onChange={setGlowColor} />
+          <ColorControl label="Mask / Base Badge Color" value={baseColor} onChange={setBaseColor} />
+        </div>
+      </div>
+
+      {/* Fine-tune sliders */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <SliderControl label="Font Size" value={fontSize} min={MIN_FONT_SIZE} max={MAX_FONT_SIZE} onChange={setFontSize} suffix="px" />
+        <SliderControl label="Stroke Width" value={strokeWidth} min={0} max={14} onChange={setStrokeWidth} suffix="px" />
+        <SliderControl label="Pattern Opacity" value={patternOpacity} min={0} max={100} onChange={setPatternOpacity} suffix="%" />
+        <SliderControl label="Vignette Intensity" value={vignetteIntensity} min={0} max={100} onChange={setVignetteIntensity} suffix="%" />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input
             type="checkbox"
@@ -261,17 +552,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
             onChange={(e) => setGlowEnabled(e.target.checked)}
             className="h-4 w-4 accent-[var(--accent)]"
           />
+          <Sparkles size={14} style={{ color: "var(--accent)" }} />
           Glow Effect
         </label>
-        {glowEnabled && (
-          <input
-            type="color"
-            value={glowColor}
-            onChange={(e) => setGlowColor(e.target.value)}
-            className="h-8 w-16 cursor-pointer rounded-lg border"
-            style={{ borderColor: "var(--border-color)" }}
-          />
-        )}
       </div>
 
       <button
@@ -288,8 +571,8 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
           <h3 className="text-sm font-semibold">Cool Gaming Logo Creator with Stylish Fonts</h3>
           <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
             Combine any of FancyCraft&rsquo;s Unicode font styles with a shield, neon, or dark
-            grid backdrop to create a cool gaming logo that stands out on Discord, YouTube, and
-            Instagram.
+            grid backdrop — plus a mascot like a dragon crest or angry skull — to create a cool
+            gaming logo that stands out on Discord, YouTube, and Instagram.
           </p>
         </div>
         <div>
