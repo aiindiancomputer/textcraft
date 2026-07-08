@@ -12,16 +12,27 @@ export const metadata: Metadata = {
     "fancy font generator",
     "gaming nickname generator",
     "free fire stylish name",
+    "free fire guild logo maker",
     "bgmi name generator",
+    "bgmi clan logo generator",
     "instagram bio fonts",
     "online case converter",
     "word counter online tool",
     "clean messy text tool",
+    "3D esports logo generator free",
+    "gaming avatar text maker",
+    "cool gaming logo creator",
+    "free online emblem generator",
+    "stylish nickname maker",
+    "text symbol generator",
   ],
   alternates: {
     canonical: "/",
   },
   manifest: "/manifest.webmanifest",
+  verification: {
+    google: "m7WLgNdM4WUHh4nKEX1tDzWST9WseCKHtzsW39Z7f-w",
+  },
   robots: {
     index: true,
     follow: true,
@@ -36,11 +47,13 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
+    images: [{ url: `${SITE_URL}/opengraph-image.png`, width: 1200, height: 630, alt: SITE_TITLE }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
+    images: [`${SITE_URL}/opengraph-image.png`],
   },
 };
 

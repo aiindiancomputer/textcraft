@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   CaseSensitive,
   Sparkles,
@@ -16,7 +17,6 @@ import type { ToolId } from "@/lib/types";
 
 interface SidebarProps {
   activeTool: ToolId;
-  onSelectTool: (tool: ToolId) => void;
   isDark: boolean;
   onToggleTheme: () => void;
   isOpen: boolean;
@@ -33,7 +33,6 @@ const NAV_ITEMS: { id: ToolId; label: string; icon: typeof CaseSensitive }[] = [
 
 export default function Sidebar({
   activeTool,
-  onSelectTool,
   isDark,
   onToggleTheme,
   isOpen,
@@ -109,12 +108,11 @@ export default function Sidebar({
             const Icon = item.icon;
             const active = activeTool === item.id;
             return (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => {
-                  onSelectTool(item.id);
-                  onClose();
-                }}
+                href={item.id === "fancy-text" ? "/" : `/?tool=${item.id}`}
+                scroll={false}
+                onClick={onClose}
                 className={`focus-ring group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
                   active ? "shadow-glow" : ""
                 }`}
@@ -132,7 +130,7 @@ export default function Sidebar({
               >
                 <Icon size={17} strokeWidth={2} />
                 {item.label}
-              </button>
+              </Link>
             );
           })}
         </nav>

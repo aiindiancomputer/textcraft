@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Menu } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import AdPlaceholder from "@/components/AdPlaceholder";
@@ -13,7 +14,7 @@ import TextCleaner from "@/components/TextCleaner";
 import LogoGenerator from "@/components/LogoGenerator";
 import FAQSection from "@/components/FAQSection";
 import type { ToolId } from "@/lib/types";
-import { isToolId } from "@/lib/toolMetadata";
+import { isToolId, TOOL_METADATA } from "@/lib/toolMetadata";
 
 const THEME_STORAGE_KEY = "fancycraft-theme";
 const DEFAULT_TOOL: ToolId = "fancy-text";
@@ -29,13 +30,14 @@ const DEFAULT_TOOL: ToolId = "fancy-text";
 // uses server-side, so the URL can never be considered "valid" for the
 // title/description but "invalid" for the rendered tool, or vice versa.
 export default function HomeContent() {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // The URL is the single source of truth for which tool is active — no
   // separate `useState` for it, so it is structurally impossible for the
-  // UI and the URL to disagree with each other.
+  // UI and the URL to disagree with each other. Navigation itself now
+  // happens via real <Link href> elements in Sidebar.tsx and the internal
+  // links block below — Next.js's router handles the client-side URL
+  // update natively, so there's no manual router.push wiring left here.
   const toolParam = searchParams.get("tool");
   const activeTool: ToolId = isToolId(toolParam ?? undefined) ? (toolParam as ToolId) : DEFAULT_TOOL;
 
@@ -69,16 +71,13 @@ export default function HomeContent() {
     window.setTimeout(() => setToast({ message: "", visible: false }), 2200);
   }, []);
 
-  // Navigates by pushing `?tool=<id>` onto the current path. `{ scroll:
-  // false }` keeps the page from jumping back to the top on every tab
-  // switch — the one explicit requirement from the integration rules.
-  const handleSelectTool = useCallback(
-    (tool: ToolId) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("tool", tool);
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [router, pathname, searchParams]
+  // Anchor-text-rich internal links to every tool's own canonical URL —
+  // real crawlable <a href> elements, not JS-only buttons. Fancy Text is
+  // skipped here since it's already linked as "/" via the h1 area isn't a
+  // link, but IS reachable from the sidebar; excluding the currently
+  // active tool avoids a page linking to itself.
+  const otherTools = (Object.entries(TOOL_METADATA) as [ToolId, (typeof TOOL_METADATA)[ToolId]][]).filter(
+    ([id]) => id !== activeTool
   );
 
   return (
@@ -88,7 +87,6 @@ export default function HomeContent() {
     >
       <Sidebar
         activeTool={activeTool}
-        onSelectTool={handleSelectTool}
         isDark={isDark ?? true}
         onToggleTheme={toggleTheme}
         isOpen={sidebarOpen}
@@ -154,7 +152,37 @@ export default function HomeContent() {
             <AdPlaceholder orientation="horizontal" />
           </div>
 
-          <div className="mt-12 border-t pt-10 transition-colors duration-300" style={{ borderColor: "var(--border-color)" }}>
+          {/*
+            Real internal links with keyword-rich anchor text (each tool's
+            own title). This is what an SEO crawler counts as "internal
+            links" — the sidebar nav is the primary path, this is a second,
+            content-area path to the same URLs, reinforcing crawlability.
+          */}
+          <nav
+            aria-label="More FancyCraft tools"
+            className="mt-12 border-t pt-8 transition-colors duration-300"
+            style={{ borderColor: "var(--border-color)" }}
+          >
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text-secondary)" }}>
+              Explore more free tools
+            </h2>
+            <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+              {otherTools.map(([id, meta]) => (
+                <li key={id}>
+                  <Link
+                    href={id === "fancy-text" ? "/" : meta.path}
+                    scroll={false}
+                    className="focus-ring text-sm underline-offset-4 hover:underline"
+                    style={{ color: "var(--accent)" }}
+                  >
+                    {meta.title.split(" | ")[0].split(" - ")[0]}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="mt-10 border-t pt-10 transition-colors duration-300" style={{ borderColor: "var(--border-color)" }}>
             <FAQSection />
           </div>
 
