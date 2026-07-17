@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Copy, Gamepad2, Search, ChevronDown, PencilLine } from "lucide-react";
+import { useToast } from "@/components/ToastProvider";
 import { FANCY_STYLES, type FancyStyle } from "@/lib/textUtils";
 
 type CategoryFilter = "all" | FancyStyle["category"];
@@ -15,7 +16,8 @@ const CATEGORY_TABS: { id: CategoryFilter; label: string }[] = [
 
 const PAGE_SIZE = 30;
 
-export default function FancyTextGenerator({ onCopy }: { onCopy: (msg: string) => void }) {
+export default function FancyTextGenerator() {
+  const onCopy = useToast();
   const [input, setInput] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [search, setSearch] = useState("");
@@ -58,9 +60,9 @@ export default function FancyTextGenerator({ onCopy }: { onCopy: (msg: string) =
   return (
     <section aria-labelledby="fancy-text-heading" className="flex flex-col gap-6">
       <div>
-        <h2 id="fancy-text-heading" className="text-2xl font-semibold tracking-tight">
-          Fancy Text & Gaming Nickname Generator
-        </h2>
+        <h1 id="fancy-text-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Fancy Text &amp; Gaming Nickname Generator
+        </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           {FANCY_STYLES.length}+ fancy fonts, symbols, and stylish nickname frames — a fancy
           font generator and Free Fire / BGMI / Valorant nickname maker perfect for Instagram

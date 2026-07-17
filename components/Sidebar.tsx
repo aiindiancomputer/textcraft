@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Home,
   CaseSensitive,
   Sparkles,
   BarChart3,
@@ -14,22 +15,23 @@ import {
 } from "lucide-react";
 import AdPlaceholder from "./AdPlaceholder";
 import type { ToolId } from "@/lib/types";
+import { TOOL_ROUTES } from "@/lib/routes";
 
 interface SidebarProps {
-  activeTool: ToolId;
+  activeTool: ToolId | null;
   isDark: boolean;
   onToggleTheme: () => void;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const NAV_ITEMS: { id: ToolId; label: string; icon: typeof CaseSensitive }[] = [
-  { id: "case-converter", label: "Case Converter", icon: CaseSensitive },
-  { id: "fancy-text", label: "Fancy Text Generator", icon: Sparkles },
-  { id: "logo-generator", label: "Logo & Avatar Generator", icon: Shield },
-  { id: "analytics", label: "Text Analytics", icon: BarChart3 },
-  { id: "cleaner", label: "Text Cleaner", icon: Eraser },
-];
+const TOOL_ICONS: Record<ToolId, typeof CaseSensitive> = {
+  "case-converter": CaseSensitive,
+  "fancy-text": Sparkles,
+  "logo-generator": Shield,
+  analytics: BarChart3,
+  cleaner: Eraser,
+};
 
 export default function Sidebar({
   activeTool,
@@ -104,14 +106,34 @@ export default function Sidebar({
         </div>
 
         <nav className="mt-8 flex flex-col gap-1" aria-label="Tool navigation">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const active = activeTool === item.id;
+          <Link
+            href="/"
+            onClick={onClose}
+            className={`focus-ring group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
+              activeTool === null ? "shadow-glow" : ""
+            }`}
+            style={{
+              backgroundColor: activeTool === null ? "var(--accent)" : "transparent",
+              color: activeTool === null ? "#ffffff" : "var(--text-secondary)",
+            }}
+            onMouseEnter={(e) => {
+              if (activeTool !== null) e.currentTarget.style.backgroundColor = "var(--bg-sunken)";
+            }}
+            onMouseLeave={(e) => {
+              if (activeTool !== null) e.currentTarget.style.backgroundColor = "transparent";
+            }}
+            aria-current={activeTool === null ? "page" : undefined}
+          >
+            <Home size={17} strokeWidth={2} />
+            Home
+          </Link>
+          {TOOL_ROUTES.map((route) => {
+            const Icon = TOOL_ICONS[route.id];
+            const active = activeTool === route.id;
             return (
               <Link
-                key={item.id}
-                href={item.id === "fancy-text" ? "/" : `/?tool=${item.id}`}
-                scroll={false}
+                key={route.id}
+                href={route.path}
                 onClick={onClose}
                 className={`focus-ring group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
                   active ? "shadow-glow" : ""
@@ -129,7 +151,7 @@ export default function Sidebar({
                 aria-current={active ? "page" : undefined}
               >
                 <Icon size={17} strokeWidth={2} />
-                {item.label}
+                {route.navLabel}
               </Link>
             );
           })}

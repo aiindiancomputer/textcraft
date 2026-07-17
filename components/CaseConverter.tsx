@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Copy, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ToastProvider";
 import {
   toUpperCase,
   toLowerCase,
@@ -22,7 +23,8 @@ const ACTIONS = [
   { id: "slug", label: "slug-case", fn: toSlug },
 ];
 
-export default function CaseConverter({ onCopy }: { onCopy: (msg: string) => void }) {
+export default function CaseConverter() {
+  const onCopy = useToast();
   const [text, setText] = useState("");
 
   const wordCount = useMemo(() => getWordCount(text), [text]);
@@ -47,9 +49,9 @@ export default function CaseConverter({ onCopy }: { onCopy: (msg: string) => voi
   return (
     <section aria-labelledby="case-converter-heading" className="flex flex-col gap-6">
       <div>
-        <h2 id="case-converter-heading" className="text-2xl font-semibold tracking-tight">
+        <h1 id="case-converter-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">
           Case Converter Studio
-        </h2>
+        </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           A free online case converter — switch between uppercase, lowercase, title case, and
           more, instantly.

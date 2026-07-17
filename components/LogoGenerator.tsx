@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Download, Sparkles, Ban } from "lucide-react";
+import { useToast } from "@/components/ToastProvider";
 import { FANCY_STYLES } from "@/lib/textUtils";
 import { LOGO_TEMPLATES, type LogoTemplate, type BackgroundOptions } from "@/lib/logoTemplates";
 import { MASCOTS, type MascotDef } from "@/lib/logoMascots";
@@ -162,7 +163,8 @@ function ColorControl({
   );
 }
 
-export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => void }) {
+export default function LogoGenerator() {
+  const onCopy = useToast();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Text
@@ -320,9 +322,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
   return (
     <section aria-labelledby="logo-generator-heading" className="flex flex-col gap-6">
       <div>
-        <h2 id="logo-generator-heading" className="text-2xl font-semibold tracking-tight">
+        <h1 id="logo-generator-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">
           Free Fire Guild Logo Maker with Name &amp; BGMI Clan Logo Generator
-        </h2>
+        </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           Design a 3D-style esports logo generator experience for free, right in your browser —
           perfect as a Free Fire or BGMI clan emblem, a gaming avatar, or an Instagram profile
@@ -367,9 +369,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
 
       {/* Font style */}
       <div>
-        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+        <h2 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
           Gaming Avatar Text Maker Style
-        </h3>
+        </h2>
         <div className="flex flex-wrap gap-2">
           {TEXT_STYLES.map((style) => (
             <button
@@ -390,9 +392,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
 
       {/* Text arc */}
       <div>
-        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+        <h2 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
           Text Path Effect
-        </h3>
+        </h2>
         <div className="mb-2 flex gap-2">
           {[
             { label: "Plain", value: 0 },
@@ -439,9 +441,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
 
       {/* Background templates */}
       <div>
-        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+        <h2 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
           Background Template
-        </h3>
+        </h2>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {LOGO_TEMPLATES.map((template) => (
             <button
@@ -467,9 +469,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
 
       {/* Mascot / avatar overlay */}
       <div>
-        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+        <h2 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
           Mascot &amp; Avatar Overlay
-        </h3>
+        </h2>
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
           <button
             onClick={() => setMascotId(NONE_MASCOT_ID)}
@@ -524,9 +526,9 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
 
       {/* Theme colors */}
       <div>
-        <h3 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+        <h2 className="mb-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
           Theme Colors
-        </h3>
+        </h2>
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-5">
           <ColorControl label="Primary Color" value={primaryColor} onChange={setPrimaryColor} />
           <ColorControl label="Secondary Color" value={secondaryColor} onChange={setSecondaryColor} />
@@ -568,7 +570,7 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
       {/* SEO copy block — additional keyword coverage, kept scannable */}
       <div className="mt-2 grid gap-4 sm:grid-cols-2">
         <div>
-          <h3 className="text-sm font-semibold">Cool Gaming Logo Creator with Stylish Fonts</h3>
+          <h2 className="text-sm font-semibold">Cool Gaming Logo Creator with Stylish Fonts</h2>
           <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
             Combine any of FancyCraft&rsquo;s Unicode font styles with a shield, neon, or dark
             grid backdrop — plus a mascot like a dragon crest or angry skull — to create a cool
@@ -576,7 +578,7 @@ export default function LogoGenerator({ onCopy }: { onCopy: (msg: string) => voi
           </p>
         </div>
         <div>
-          <h3 className="text-sm font-semibold">Free Online Emblem Generator for Gamers</h3>
+          <h2 className="text-sm font-semibold">Free Online Emblem Generator for Gamers</h2>
           <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
             No account, no watermark, no upload limits — this free online emblem generator runs
             entirely on your device and exports a full-resolution PNG you can use anywhere.

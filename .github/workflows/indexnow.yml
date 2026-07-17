@@ -1,0 +1,23 @@
+name: Notify IndexNow on push
+
+# Runs automatically on every push to main — this is the "as soon as I
+# push to GitHub, IndexNow should happen automatically" piece. It does not
+# need Vercel to finish deploying first; it retries against the live
+# sitemap.xml a few times with a delay (see scripts/indexnow-ping.mjs) to
+# ride out the normal deploy lag.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {} # lets you also trigger it manually from the Actions tab
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for Vercel deploy to roll out
+        run: sleep 45
+
+      - name: Ping IndexNow (Bing, Yandex, Naver, Seznam.cz, Yep)
+        run: node scripts/indexnow-ping.mjs

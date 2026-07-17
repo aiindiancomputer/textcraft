@@ -1,6 +1,13 @@
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "@/lib/seo";
-import { FAQS } from "@/lib/faqs";
 
+// Only the WebApplication schema lives here, rendered site-wide from
+// app/layout.tsx — it describes the app as a whole, so it's valid on
+// every page. FAQPage schema is deliberately NOT included here: it used
+// to be, but it was only ever accurate on the homepage (the only page
+// that actually renders the visible FAQ accordion). Structured data that
+// doesn't match the visible content on that specific page is exactly the
+// kind of mismatch Google's spam guidelines flag — see
+// components/FaqStructuredData.tsx, rendered only from app/page.tsx.
 export default function StructuredData() {
   const webApplicationSchema = {
     "@context": "https://schema.org",
@@ -18,31 +25,11 @@ export default function StructuredData() {
     },
   };
 
-  const faqPageSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: FAQS.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  };
-
   return (
-    <>
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }}
-      />
-    </>
+    <script
+      type="application/ld+json"
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationSchema) }}
+    />
   );
 }

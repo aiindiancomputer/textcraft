@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Copy, Trash2, Ruler, FileMinus2, Code2, SmilePlus } from "lucide-react";
+import { useToast } from "@/components/ToastProvider";
 import {
   removeExtraSpaces,
   removeEmptyLines,
@@ -16,7 +17,8 @@ const CLEAN_ACTIONS = [
   { id: "emoji", label: "Remove Emojis", icon: SmilePlus, fn: removeEmojis },
 ];
 
-export default function TextCleaner({ onCopy }: { onCopy: (msg: string) => void }) {
+export default function TextCleaner() {
+  const onCopy = useToast();
   const [text, setText] = useState("");
 
   function applyClean(fn: (t: string) => string) {
@@ -37,9 +39,9 @@ export default function TextCleaner({ onCopy }: { onCopy: (msg: string) => void 
   return (
     <section aria-labelledby="cleaner-heading" className="flex flex-col gap-6">
       <div>
-        <h2 id="cleaner-heading" className="text-2xl font-semibold tracking-tight">
-          Pro Text Cleaner & Spacer
-        </h2>
+        <h1 id="cleaner-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Pro Text Cleaner &amp; Spacer
+        </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
           A clean messy text tool — fix extra spaces, blank lines, stray HTML markup, and
           emojis in one click.
